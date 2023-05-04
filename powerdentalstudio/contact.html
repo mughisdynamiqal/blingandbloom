@@ -1,0 +1,168 @@
+@extends('frontend.layouts.app')
+
+@section('title') {{app_name()}} @endsection
+
+@section('content')
+
+<!-- Page Title -->
+<section class="page-title centred page-banner-area"
+    style="background-image: url(assets/images/background/page-title.jpg);">
+    <div class="auto-container">
+        <div class="content-box">
+            <div class="shape" style="background-image: url(assets/images/shape/shape-63.png);"></div>
+            <div class="title">
+                <h1>Contact Us</h1>
+            </div>
+            <ul class="bread-crumb clearfix">
+                <li><a href="{{route('frontend.index')}}">Home</a></li>
+                <li>Contact Us</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- End Page Title -->
+<!-- contact-style-two -->
+
+<section class="contact-style-two sec-pad">
+    <div class="auto-container">
+        <div class="sec-title centred">
+            <h6> Message Us</h6>
+            <h2>Drop Us Message for Any Query</h2>
+        </div>
+        <div class="form-inner">
+        @if(session()->has('message'))
+            <div class="alert alert-success">
+                {{ session()->get('message') }}
+            </div>
+        @endif
+       
+            <form method="post" action="{{route('frontend.send_mail')}}" id="contact-form"
+                class="default-form">
+                @csrf
+                <div class="row clearfix">
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
+                        <input type="text" name="username" value="{{ old('username') }}" placeholder="Full Name" required="">
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Email Address" required="">
+                        <label for="" id="mail_er" class="text-danger"></label>
+
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
+                        <input type="text" id="phone" name="phone" value="{{ old('phone') }}" required="" placeholder="Phone">
+                        <label for="" id="phone_er" class="text-danger"></label>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 form-group">
+                        <input type="text" name="subject" required="" value="{{ old('subject') }}" placeholder="Subject">
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 form-group">
+                        <textarea name="message" placeholder="Your Message">{{ old('message') }}</textarea>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 form-group">
+                    <div class="captcha">
+                        <span>{!! Captcha::img('flat') !!}</span>
+                        <button type="button" class="btn btn-danger" class="reload" id="reload">
+                            &#x21bb;
+                        </button>
+                        </div>
+                        <input id="captcha" type="text" class="form-control" placeholder="Enter Captcha" name="captcha" required="">
+                        
+                        @if (\Session::has('invalid-captcha'))
+                        <script>Swal.fire({  icon: 'error',title: 'Oops...',text: '{!! \Session::get("invalid-captcha") !!}',})</script>
+
+                            <div class="alert alert-danger">
+                                <ul>
+                                    <li>{!! \Session::get('invalid-captcha') !!}</li>
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 form-group message-btn centred">
+                        <button class="theme-btn-one" type="submit" name="submit-form">Send Message</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<section class="google-map-section mb-5">
+
+    <div class="info-section">
+        <div class="auto-container">
+            <div class="info-inner clearfix">
+                <div class="single-info-box">
+                    <div class="icon-box"><i class="icon-23"></i></div>
+                    <h4>Office </h4>
+                    <p>1001 Warrenville Road <br>Suite 570, Lisle IL 60532</p>
+                </div>
+                <div class="single-info-box">
+                    <div class="icon-box"><i class="icon-59"></i></div>
+                    <h4>Phone Number</h4>
+                    <p><a href="tel:+1331-777-5160">331-777-5160</a></p>
+                </div>
+                <div class="single-info-box">
+                    <div class="icon-box"><i class="icon-60"></i></div>
+                    <h4>Email Address</h4>
+                    <p><a href="mailto:info@powerdentalstudio.com">info@powerdentalstudio.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- contact-style-two end -->
+
+
+<style>
+    .error{
+        color: red!important;
+    }
+</style>
+
+<!-- End Main -->
+@endsection
+
+
+@push ('after-scripts')
+<script>
+$(document).ready(function() {
+  $('#contact-form').submit(function(event) {
+    // Prevent form submission
+    event.preventDefault();
+
+    // Get the input values
+    var phone = $('#phone').val();
+    var email = $('#email').val();
+
+    // Validate the phone number
+    var phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+    //   alert('Please enter a valid phone number.');
+      $('#phone_er').text('Please enter a valid phone number');
+      return;
+    }
+
+    // Validate the email address
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        $('#mail_er').text('Please enter a valid phone number');
+    //   alert('Please enter a valid email address.');
+      return;
+    }
+
+    // If the input is valid, submit the form
+    $('#contact-form')[0].submit();
+  });
+});
+
+$('#reload').click(function () {
+        $.ajax({
+            type: 'GET',
+            url: '{{route("frontend.reload_captch")}}',
+            success: function (data) {
+                $(".captcha span").html(data.captcha);
+            }
+        });
+    });
+
+</script>
+@endpush
